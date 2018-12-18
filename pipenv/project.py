@@ -222,7 +222,7 @@ class Project(object):
 
     @property
     def pipfile_exists(self):
-        return bool(self.pipfile_location)
+        return os.path.isfile(self.pipfile_location)
 
     @property
     def required_python_version(self):
@@ -470,7 +470,7 @@ class Project(object):
             try:
                 loc = pipfile.Pipfile.find(max_depth=PIPENV_MAX_DEPTH)
             except RuntimeError:
-                loc = None
+                loc = "Pipfile"
             self._pipfile_location = _normalized(loc)
         return self._pipfile_location
 
@@ -659,11 +659,6 @@ class Project(object):
         """Returns a list of dev-packages, for pip-tools to consume."""
         return self._build_package_list("dev-packages")
 
-    def touch_pipfile(self):
-        """Simply touches the Pipfile, for later use."""
-        with open("Pipfile", "a"):
-            os.utime("Pipfile", None)
-
     @property
     def pipfile_is_empty(self):
         if not self.pipfile_exists:
@@ -680,7 +675,6 @@ class Project(object):
             ConfigOptionParser, make_option_group, index_group
         )
 
-        name = self.name if self.name is not None else "Pipfile"
         config_parser = ConfigOptionParser(name=self.name)
         config_parser.add_option_group(make_option_group(index_group, config_parser))
         install = config_parser.option_groups[0]

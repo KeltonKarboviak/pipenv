@@ -252,6 +252,12 @@ def ensure_pipfile(validate=True, skip_requirements=False, system=False):
     """Creates a Pipfile for the project, if it doesn't exist."""
     from .environments import PIPENV_VIRTUALENV
 
+    # Fail if working under /
+    if not project.name:
+        raise exceptions.PipenvUsageError(
+            "Pipenv is not intended to work under root directory, "
+            "please choose another path."
+        )
     # Assert Pipfile exists.
     python = which("python") if not (USING_DEFAULT_PYTHON or system) else None
     if project.pipfile_is_empty:
@@ -540,11 +546,12 @@ def ensure_project(
     # Automatically use an activated virtualenv.
     if PIPENV_USE_SYSTEM:
         system = True
-    if not project.pipfile_exists:
-        if deploy is True:
-            raise exceptions.PipfileNotFound
-        else:
-            project.touch_pipfile()
+    if not project.pipfile_exists and deploy:
+        raise exceptions.PipfileNotFound
+    # Ensure the Pipfile exists.
+    ensure_pipfile(
+        validate=validate, skip_requirements=skip_requirements, system=system
+    )
     # Skip virtualenv creation when --system was used.
     if not system:
         ensure_virtualenv(
@@ -584,10 +591,6 @@ def ensure_project(
                         )
                     else:
                         raise exceptions.DeployException
-    # Ensure the Pipfile exists.
-    ensure_pipfile(
-        validate=validate, skip_requirements=skip_requirements, system=system
-    )
 
 
 def shorten_path(location, bold=False):
