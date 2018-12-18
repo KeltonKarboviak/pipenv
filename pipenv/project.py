@@ -256,7 +256,7 @@ class Project(object):
     @property
     def virtualenv_exists(self):
         # TODO: Decouple project from existence of Pipfile.
-        if self.pipfile_exists and os.path.exists(self.virtualenv_location):
+        if os.path.exists(self.virtualenv_location):
             if os.name == "nt":
                 extra = ["Scripts", "activate.bat"]
             else:
@@ -499,6 +499,8 @@ class Project(object):
 
     def read_pipfile(self):
         # Open the pipfile, read it into memory.
+        if self.pipfile_is_empty:
+            return ""
         with io.open(self.pipfile_location) as f:
             contents = f.read()
             self._pipfile_newlines = preferred_newlines(f)
@@ -828,7 +830,7 @@ class Project(object):
 
     @property
     def pipfile_sources(self):
-        if "source" not in self.parsed_pipfile:
+        if self.pipfile_is_empty or "source" not in self.parsed_pipfile:
             return [DEFAULT_SOURCE]
         # We need to make copies of the source info so we don't
         # accidentally modify the cache. See #2100 where values are
