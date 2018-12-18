@@ -44,13 +44,13 @@ sys.excepthook = handle_exception
 
 
 class PipenvException(ClickException):
-    message = "{0}: {{0}}".format(crayons.red("ERROR", bold=True))
+    formatted_message = "{0} {{0}}".format(crayons.red("ERROR:", bold=True))
 
     def __init__(self, message=None, **kwargs):
         if not message:
             message = "Pipenv encountered a problem and had to exit."
         extra = kwargs.pop("extra", [])
-        message = self.message.format(message)
+        message = self.formatted_message.format(message)
         ClickException.__init__(self, message)
         self.extra = extra
 
@@ -69,15 +69,13 @@ class PipenvException(ClickException):
 
 
 class PipenvUsageError(UsageError):
+    formatted_message = "{0} {{0}}".format(crayons.red("ERROR:", bold=True))
 
     def __init__(self, message=None, ctx=None, **kwargs):
-        formatted_message = "{0}: {1}"
-        msg_prefix = crayons.red("ERROR:", bold=True)
         if not message:
             message = "Pipenv encountered a problem and had to exit."
-        message = formatted_message.format(msg_prefix, crayons.white(message, bold=True))
-        self.message = message
         extra = kwargs.pop("extra", [])
+        message = self.formatted_message.format(message)
         UsageError.__init__(self, fix_utf8(message), ctx)
         self.extra = extra
 

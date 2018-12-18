@@ -544,8 +544,8 @@ def ensure_project(
         raise exceptions.PipfileNotFound
     # Fail if working under /
     if not project.name:
-        raise exceptions.PipenvUsageError(
-            "Pipenv is not intended to work under root directory, "
+        raise exceptions.PipfileException(
+            "Pipenv is not intended to work under the root directory, "
             "please choose another path."
         )
     # Skip virtualenv creation when --system was used.
