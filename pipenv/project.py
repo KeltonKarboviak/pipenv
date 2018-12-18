@@ -499,7 +499,7 @@ class Project(object):
 
     def read_pipfile(self):
         # Open the pipfile, read it into memory.
-        if self.pipfile_is_empty:
+        if not self.pipfile_exists:
             return ""
         with io.open(self.pipfile_location) as f:
             contents = f.read()
